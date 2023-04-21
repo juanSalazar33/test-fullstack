@@ -1,6 +1,6 @@
 
 import { HttpClient } from '@angular/common/http';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, catchError, map, of, tap, retry } from 'rxjs';
 
@@ -48,17 +48,17 @@ import { BehaviorSubject, catchError, map, of, tap, retry } from 'rxjs';
     <div class="container">
       <section>
         <div class="card">
-          <div class="card-title">{{ title }}</div>
+          <div class="card-title">{{ title | uppercase }}</div>
           <br />
           <hr />
           <br />
 
-          <div class="card-body">{{ body }}</div>
+          <div class="card-body">{{ body | lowercase }}</div>
           <br />
           <hr />
           <br />
 
-          <div class="card-footer">{{ footer }}</div>
+          <div class="card-footer">{{ footer | titlecase }}</div>
         </div>
       </section>
       <change-content></change-content>
@@ -66,12 +66,17 @@ import { BehaviorSubject, catchError, map, of, tap, retry } from 'rxjs';
   `,
   styleUrls: ['./app.component.css'],
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   title: any;
   body: any;
   footer: any;
-
-  constructor() {}
+  constructor(private service: ContentService) { }
+  onInit(){
+    this.service.getTitle().subscribe(data => {
+      this.title = data
+    })
+  }
+  
 }
 
 @Injectable({
@@ -106,7 +111,8 @@ export class ContentService {
     return this.footer$;
   }
 
-  changeTitle() {
+  changeTitle(data: string) {
+    this.title$.next(data)
     // Desarrollar el cuerpo del método / Develop the method body
   }
 }
@@ -116,10 +122,10 @@ export class ContentService {
   template: `
     <section>
       <div class="card">
-        <button> Change Title </button>
+        <button (click) = "changeTitle()"> Change Title </button>
         <button> Call Api </button>
-        <section> Connection to API Success  </section>
-        <section> Connection to API Failed  </section>
+        <section *ngIf="hasContent" > Connection to API Success  </section>
+        <section *ngIf="hasError" > Connection to API Failed  </section>
       </div>
     </section>
   `,
@@ -129,13 +135,19 @@ export class ChangeContentComponent {
   hasError = false;
   hasContent = false;
 
-  constructor( private service: GetContentService) {}
+  constructor( private service: GetContentService, private service2: ContentService) {}
 
   changeTitle() {
+      this.service2.changeTitle(this.newTitle)
     // Desarrollar el cuerpo del método / Develop the method body
   }
 
-  callApi(){
+  callApi() {
+    this.service.getContent().then(() => {
+      this.hasContent = true
+    }).catch((error) => {
+      this.hasError = true
+    })
     // Desarrollar el cuerpo del método / Develop the method body
   }
 }

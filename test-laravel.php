@@ -37,6 +37,7 @@ class PostController extends Controller {
     }
 }
 ?>
+NO, el codigo devuelve solo el usuario.
 ~~~
 
 
@@ -80,6 +81,7 @@ class PostController extends Controller {
     }
 }
 ?>
+NO, esta validando que el usuario existe pero falta validar que el numero de registros sea minimo 1000
 ~~~
 
 
